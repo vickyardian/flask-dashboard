@@ -7,6 +7,10 @@ import plotly
 
 app = Flask(__name__)
 
+@app.route('/googled3d7408d119c4567.html')
+def google_verify():
+    return send_from_directory('static', 'googled3d7408d119c4567.html')
+
 def format_rupiah(angka):
     return f"Rp{int(angka):,}".replace(",", ".")
 
@@ -199,4 +203,5 @@ def sitemap():
     return send_from_directory('.', 'sitemap.xml')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
