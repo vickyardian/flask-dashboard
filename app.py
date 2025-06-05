@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+from flask import send_from_directory
 import pandas as pd
 import plotly.express as px
+import json
+import plotly
 
 app = Flask(__name__)
 
@@ -16,57 +19,63 @@ def load_data():
 
 df = load_data()
 
+# API endpoint untuk mendapatkan data chart berdasarkan PTN
+@app.route("/api/charts/<ptn>", methods=['GET'])
+def get_charts(ptn):
+    try:
+        # 1. Pie Chart Daya Tampung
+        data_daya = df[df['PTN'] == ptn][['JURUSAN', 'DAYA TAMPUNG']].dropna()
+        fig_daya = px.pie(
+            data_daya,
+            values='DAYA TAMPUNG',
+            names='JURUSAN',
+            title=f'Distribusi Daya Tampung Prodi di {ptn}',
+            hole=0.3
+        )
+        fig_daya.update_traces(textinfo='label+value', hovertemplate='%{label}<br>Daya Tampung: %{value:,}')
+        
+        # 2. Bar Chart UKT
+        data_ukt = df[df['PTN'] == ptn][['JURUSAN', 'UKT']].dropna().sort_values('UKT', ascending=False)
+        fig_ukt = px.bar(
+            data_ukt,
+            x='UKT',
+            y='JURUSAN',
+            orientation='h',
+            title=f'UKT Tiap Prodi di {ptn}',
+            labels={'UKT': 'UKT (Rupiah)', 'JURUSAN': 'Prodi'},
+            text='UKT'
+        )
+        fig_ukt.update_traces(
+            hovertemplate='%{y}<br>UKT: Rp %{x:,.0f}',
+            texttemplate='Rp %{x:,.0f}',
+            textposition='outside'
+        )
+        fig_ukt.update_layout(
+            xaxis_tickformat=',',
+            xaxis=dict(tickprefix='Rp ')
+        )
+        
+        # 3. Data tabel detail
+        filtered = df[df['PTN'] == ptn][['JURUSAN', 'DAYA TAMPUNG', 'UKT_RUPIAH']]
+        
+        return jsonify({
+            'success': True,
+            'pie_chart': json.dumps(fig_daya, cls=plotly.utils.PlotlyJSONEncoder),
+            'bar_chart': json.dumps(fig_ukt, cls=plotly.utils.PlotlyJSONEncoder),
+            'table_data': filtered.to_dict(orient='records')
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route("/", methods=['GET'])
 def index():
     ptn_list = sorted(df['PTN'].unique())
-
-    # Ambil parameter PTN dari URL untuk masing-masing visualisasi / tabel
-    ptn_daya = request.args.get('ptn_daya', ptn_list[0])
-    ptn_ukt = request.args.get('ptn_ukt', ptn_list[0])
-    ptn_detail = request.args.get('ptn_detail', ptn_list[0])
 
     # 1. Jumlah PTN dan jumlah jurusan
     jumlah_ptn = df['PTN'].nunique()
     jurusan_per_ptn = df.groupby('PTN')['JURUSAN'].nunique().sort_index()
 
-    # 2. Distribusi Daya Tampung per Prodi dalam PTN (Pie Chart)
-    data_daya = df[df['PTN'] == ptn_daya][['JURUSAN', 'DAYA TAMPUNG']].dropna()
-    fig_daya = px.pie(
-        data_daya,
-        values='DAYA TAMPUNG',
-        names='JURUSAN',
-        title=f'Distribusi Daya Tampung Prodi di {ptn_daya}',
-        hole=0.3
-    )
-    fig_daya.update_traces(textinfo='label+value', hovertemplate='%{label}<br>Daya Tampung: %{value:,}')
-    chart_daya = fig_daya.to_html(full_html=False)
-
-    # 3. Distribusi UKT per Prodi dalam PTN (Bar Chart)
-    data_ukt = df[df['PTN'] == ptn_ukt][['JURUSAN', 'UKT']].dropna().sort_values('UKT', ascending=False)
-    fig_ukt = px.bar(
-        data_ukt,
-        x='UKT',
-        y='JURUSAN',
-        orientation='h',
-        title=f'UKT Tiap Prodi di {ptn_ukt}',
-        labels={'UKT': 'UKT (Rupiah)', 'JURUSAN': 'Prodi'},
-        text='UKT'
-    )
-    fig_ukt.update_traces(
-        hovertemplate='%{y}<br>UKT: Rp %{x:,.0f}',
-        texttemplate='Rp %{x:,.0f}',
-        textposition='outside'
-    )
-    fig_ukt.update_layout(
-        xaxis_tickformat=',',
-        xaxis=dict(tickprefix='Rp ')
-    )
-    chart_ukt = fig_ukt.to_html(full_html=False)
-
-    # 4. Tabel detail jurusan, daya tampung, dan UKT per PTN
-    filtered = df[df['PTN'] == ptn_detail][['JURUSAN', 'DAYA TAMPUNG', 'UKT_RUPIAH']]
-
-    # 5. 7 Prodi UKT Termahal dari PTN Berbeda
+    # 2.Prodi UKT Termahal dari PTN Berbeda
     ukt_termahal = df.loc[df.groupby('PTN')['UKT'].idxmax()][['PTN', 'JURUSAN', 'UKT']]
     ukt_termahal_top = ukt_termahal.sort_values('UKT', ascending=False).head(7)
     ukt_termahal_top['LABEL'] = ukt_termahal_top['PTN'] + " - " + ukt_termahal_top['JURUSAN']
@@ -91,7 +100,7 @@ def index():
     )
     chart_ukt_termahal = fig_ukt_termahal.to_html(full_html=False)
 
-    # 6. 7 Prodi Daya Tampung Terbanyak dari PTN Berbeda
+    # 3.Prodi Daya Tampung Terbanyak dari PTN Berbeda
     df_sorted = df.sort_values(by=["PTN", "DAYA TAMPUNG"], ascending=[True, False])
     daya_terbanyak = df_sorted.loc[df_sorted.groupby("PTN")["DAYA TAMPUNG"].idxmax()].drop_duplicates(subset="PTN")
     daya_terbanyak_top7 = daya_terbanyak.sort_values("DAYA TAMPUNG", ascending=False).head(7)
@@ -113,7 +122,7 @@ def index():
     )
     chart_daya_terbanyak = fig_daya_terbanyak.to_html(full_html=False)
 
-    # 7. 7 Prodi UKT Termurah dari PTN Berbeda
+    # 4.Prodi UKT Termurah dari PTN Berbeda
     ukt_termurah = df.loc[df.groupby('PTN')['UKT'].idxmin()][['PTN', 'JURUSAN', 'UKT']]
     ukt_termurah_top = ukt_termurah.sort_values('UKT', ascending=True).head(7)
     ukt_termurah_top['LABEL'] = ukt_termurah_top['PTN'] + " - " + ukt_termurah_top['JURUSAN']
@@ -138,7 +147,7 @@ def index():
     )
     chart_ukt_termurah = fig_ukt_termurah.to_html(full_html=False)
 
-    # 8. 7 Prodi Daya Tampung Terkecil dari PTN Berbeda
+    # 5.Prodi Daya Tampung Terkecil dari PTN Berbeda
     daya_terkecil = df_sorted.loc[df_sorted.groupby("PTN")["DAYA TAMPUNG"].idxmin()].drop_duplicates(subset="PTN")
     daya_terkecil_top7 = daya_terkecil.sort_values("DAYA TAMPUNG", ascending=True).head(7)
 
@@ -159,7 +168,7 @@ def index():
     )
     chart_dayamin = fig_dayamin.to_html(full_html=False)
 
-    # 9. 10 Jurusan Terpopuler
+    # 6.Jurusan Terpopuler
     jurusan_populer = df['JURUSAN'].value_counts().head(10).reset_index()
     jurusan_populer.columns = ['JURUSAN', 'JUMLAH_PTN']
 
@@ -178,19 +187,16 @@ def index():
         'index.html',
         jumlah_ptn=jumlah_ptn,
         jurusan_per_ptn=jurusan_per_ptn,
-        ptn_list=ptn_list,
-        selected_ptn_daya=ptn_daya,
-        selected_ptn_ukt=ptn_ukt,
-        selected_ptn_detail=ptn_detail,
-        chart_daya=chart_daya,
-        chart_ukt=chart_ukt,
-        filtered=filtered.to_dict(orient='records'),
         chart_ukt_termahal=chart_ukt_termahal,
         chart_daya_terbanyak=chart_daya_terbanyak,
         chart_ukt_termurah=chart_ukt_termurah,
         chart_dayamin=chart_dayamin,
         chart_popular=chart_popular
     )
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('.', 'sitemap.xml')
 
 if __name__ == "__main__":
     app.run(debug=True)

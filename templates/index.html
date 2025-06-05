@@ -1,17 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8" />
     <title>Dashboard Analisis Program IUP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1, h2, h3 { text-align: center; }
-        table { border-collapse: collapse; margin: 0 auto; width: 90%; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #eee; }
-        .section { margin-bottom: 50px; }
-        select { padding: 5px; font-size: 1rem; }
-        form { text-align: center; margin-bottom: 20px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0 20px 50px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .section {
+            margin: 40px auto;
+            padding: 30px 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 1000px;
+        }
+
+        /* TABEL */
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+        }
+        th {
+            background-color: #ecf0f1;
+        }
+        tr:nth-child(even) {background-color: #fafafa;}
+
+        /* CARD PTN */
+        .ptn-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            padding-top: 10px;
+        }
+        .ptn-card {
+            background-color: #fdfdfd;
+            padding: 16px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            width: 250px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .ptn-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .ptn-card.active {
+            border: 2px solid #3498db;
+            background-color: #e8f4f8;
+        }
+        .ptn-card .click-hint {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Charts Container - Improved layout */
+        .charts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .chart-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent overflow */
+        }
+        
+        /* Specific chart containers */
+        #pie-chart, #bar-chart {
+            width: 100%;
+            height: 500px; /* Fixed height */
+            overflow: hidden;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .ptn-card {
+                width: 100%;
+            }
+            #pie-chart, #bar-chart {
+                height: 400px;
+            }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* Selected PTN Display */
+        .selected-ptn {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e8f4f8;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Detail section styling */
+        .detail-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -20,107 +179,219 @@
 
 <div class="section">
     <h2>Jumlah PTN dan Jurusan</h2>
-    <p style="text-align:center;">
-        Jumlah PTN: <b>{{ jumlah_ptn }}</b><br/>
-        Jumlah Jurusan per PTN:<br/>
-        <ul>
-            {% for ptn, jml in jurusan_per_ptn.items() %}
-                <li><b>{{ ptn }}</b>: {{ jml }} jurusan</li>
-            {% endfor %}
-        </ul>
+    <p style="text-align:center; font-size: 18px;">
+        <strong>Total PTN:</strong> {{ jumlah_ptn }}
     </p>
+    <p style="text-align:center; font-size: 14px; color: #666; margin-bottom: 20px;">
+        <em>Klik kartu PTN untuk melihat detail data</em>
+    </p>
+    <div class="ptn-grid">
+        {% for ptn, jml in jurusan_per_ptn.items() %}
+        <div class="ptn-card" data-ptn="{{ ptn }}" onclick="selectPTN('{{ ptn }}')">
+            <div class="click-hint">▶</div>
+            <h4 style="margin: 0 0 10px;">{{ ptn }}</h4>
+            <p>{{ jml }} jurusan</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
-<div class="section">
-    <h2>Distribusi Daya Tampung per Prodi</h2>
-    <form method="get" action="/">
-        <label for="ptn_daya">Pilih PTN:</label>
-        <select id="ptn_daya" name="ptn_daya" onchange="this.form.submit()">
-            {% for ptn in ptn_list %}
-                <option value="{{ ptn }}" {% if ptn == selected_ptn_daya %}selected{% endif %}>{{ ptn }}</option>
-            {% endfor %}
-        </select>
-        <!-- Passing other params to keep selections -->
-        <input type="hidden" name="ptn_ukt" value="{{ selected_ptn_ukt }}">
-        <input type="hidden" name="ptn_detail" value="{{ selected_ptn_detail }}">
-    </form>
-    <div>{{ chart_daya|safe }}</div>
+<div class="section" id="interactive-section" style="display: none;">
+    <h2>Data PTN Terpilih</h2>
+    <div class="selected-ptn" id="selected-ptn-display">
+        Pilih PTN dari kartu di atas
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Memuat data...</p>
+    </div>
+    
+    <div class="charts-container" id="charts-container">
+        <div class="chart-box">
+            <h3>Distribusi Daya Tampung per Prodi</h3>
+            <div id="pie-chart"></div>
+        </div>
+        
+        <div class="chart-box">
+            <h3>Distribusi UKT per Prodi</h3>
+            <div id="bar-chart"></div>
+        </div>
+        
+        <div class="detail-section" id="detail-table-container">
+            <h3>Detail Jurusan, Daya Tampung & UKT</h3>
+            <table id="detail-table">
+                <thead>
+                    <tr>
+                        <th>Jurusan</th>
+                        <th>Daya Tampung</th>
+                        <th>UKT (Rupiah)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<div class="section">
-    <h2>Distribusi UKT per Prodi</h2>
-    <form method="get" action="/">
-        <label for="ptn_ukt">Pilih PTN:</label>
-        <select id="ptn_ukt" name="ptn_ukt" onchange="this.form.submit()">
-            {% for ptn in ptn_list %}
-                <option value="{{ ptn }}" {% if ptn == selected_ptn_ukt %}selected{% endif %}>{{ ptn }}</option>
-            {% endfor %}
-        </select>
-        <!-- Keep other selections -->
-        <input type="hidden" name="ptn_daya" value="{{ selected_ptn_daya }}">
-        <input type="hidden" name="ptn_detail" value="{{ selected_ptn_detail }}">
-    </form>
-    <div>{{ chart_ukt|safe }}</div>
-</div>
+<!-- Grafik Tambahan -->
+<div class="section">{{ chart_ukt_termahal|safe }}</div>
+<div class="section">{{ chart_daya_terbanyak|safe }}</div>
+<div class="section">{{ chart_ukt_termurah|safe }}</div>
+<div class="section">{{ chart_dayamin|safe }}</div>
+<div class="section">{{ chart_popular|safe }}</div>
 
-<div class="section">
-    <h2>Data Detail Jurusan, Daya Tampung & UKT</h2>
-    <form method="get" action="/">
-        <label for="ptn_detail">Pilih PTN:</label>
-        <select id="ptn_detail" name="ptn_detail" onchange="this.form.submit()">
-            {% for ptn in ptn_list %}
-                <option value="{{ ptn }}" {% if ptn == selected_ptn_detail %}selected{% endif %}>{{ ptn }}</option>
-            {% endfor %}
-        </select>
-        <!-- Keep others -->
-        <input type="hidden" name="ptn_daya" value="{{ selected_ptn_daya }}">
-        <input type="hidden" name="ptn_ukt" value="{{ selected_ptn_ukt }}">
-    </form>
+<!-- Footer -->
+<footer>
+    <p>&copy; Dashboard IUP PTN | Vicky Ardiansyah</p>
+</footer>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Jurusan</th>
-                <th>Daya Tampung</th>
-                <th>UKT (Rupiah)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in filtered %}
-            <tr>
-                <td>{{ row['JURUSAN'] }}</td>
-                <td>{{ row['DAYA TAMPUNG'] }}</td>
-                <td>{{ row['UKT_RUPIAH'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<script>
+let currentSelectedPTN = null;
 
-<div class="section">
-    <h2>7 Prodi dengan UKT Termahal dari PTN Berbeda</h2>
-    <div>{{ chart_ukt_termahal|safe }}</div>
-</div>
+function selectPTN(ptnName) {
+    // Remove active class from all cards
+    document.querySelectorAll('.ptn-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Add active class to selected card
+    document.querySelector(`[data-ptn="${ptnName}"]`).classList.add('active');
+    
+    // Update selected PTN display
+    document.getElementById('selected-ptn-display').textContent = `PTN Terpilih: ${ptnName}`;
+    
+    // Show the interactive section
+    document.getElementById('interactive-section').style.display = 'block';
+    
+    // Show loading animation
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('charts-container').style.display = 'none';
+    
+    // Store current selected PTN
+    currentSelectedPTN = ptnName;
+    
+    // Fetch data from API
+    fetch(`/api/charts/${encodeURIComponent(ptnName)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Parse and display pie chart with proper layout
+                const pieData = JSON.parse(data.pie_chart);
+                const pieLayout = {
+                    ...pieData.layout,
+                    autosize: true,
+                    margin: { l: 50, r: 50, t: 50, b: 50 },
+                    showlegend: true,
+                    legend: {
+                        orientation: "v",
+                        x: 1.02,
+                        y: 0.5,
+                        xanchor: 'left'
+                    }
+                };
+                
+                const pieConfig = {
+                    responsive: true,
+                    displayModeBar: false
+                };
+                
+                Plotly.newPlot('pie-chart', pieData.data, pieLayout, pieConfig);
+                
+                // Parse and display bar chart with proper layout
+                const barData = JSON.parse(data.bar_chart);
+                const barLayout = {
+                    ...barData.layout,
+                    autosize: true,
+                    margin: { l: 100, r: 50, t: 50, b: 100 },
+                    showlegend: false
+                };
+                
+                const barConfig = {
+                    responsive: true,
+                    displayModeBar: false
+                };
+                
+                Plotly.newPlot('bar-chart', barData.data, barLayout, barConfig);
+                
+                // Update table
+                updateTable(data.table_data);
+                
+                // Hide loading and show charts
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('charts-container').style.display = 'flex';
+                
+                // Force resize after a short delay to ensure proper rendering
+                setTimeout(() => {
+                    Plotly.Plots.resize('pie-chart');
+                    Plotly.Plots.resize('bar-chart');
+                }, 100);
+                
+                // Smooth scroll to the interactive section
+                document.getElementById('interactive-section').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else {
+                console.error('Error:', data.error);
+                document.getElementById('loading').style.display = 'none';
+                alert('Terjadi kesalahan saat memuat data: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById('loading').style.display = 'none';
+            alert('Terjadi kesalahan saat memuat data');
+        });
+}
 
-<div class="section">
-    <h2>7 Prodi dengan Daya Tampung Terbanyak dari PTN</h2>
-    <div>{{ chart_daya_terbanyak|safe }}</div>
-</div>
+function updateTable(tableData) {
+    const tableBody = document.getElementById('table-body');
+    tableBody.innerHTML = '';
+    
+    tableData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${row.JURUSAN}</td>
+            <td>${row['DAYA TAMPUNG'] || 'N/A'}</td>
+            <td>${row.UKT_RUPIAH}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
 
-<div class="section">
-    <h2>7 Prodi dengan UKT Termurah dari PTN</h2>
-    <div>{{ chart_ukt_termurah|safe }}</div>
-</div>
+// Handle window resize for responsive charts
+window.addEventListener('resize', function() {
+    if (currentSelectedPTN) {
+        // Resize charts when window is resized
+        setTimeout(() => {
+            Plotly.Plots.resize('pie-chart');
+            Plotly.Plots.resize('bar-chart');
+        }, 100);
+    }
+});
 
-<div class="section">
-    <h2>7 Prodi dengan Daya Tampung Terkecil dari PTN</h2>
-    <div>{{ chart_dayamin|safe }}</div>
-</div>
+// Ensure charts are properly sized when becoming visible
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+            const target = mutation.target;
+            if (target.id === 'charts-container' && target.style.display === 'flex') {
+                setTimeout(() => {
+                    Plotly.Plots.resize('pie-chart');
+                    Plotly.Plots.resize('bar-chart');
+                }, 200);
+            }
+        }
+    });
+});
 
-<div class="section">
-    <h2>10 Jurusan Terpopuler</h2>
-    <div>{{ chart_popular|safe }}</div>
-</div>
+observer.observe(document.getElementById('charts-container'), {
+    attributes: true,
+    attributeFilter: ['style']
+});
+</script>
 
 </body>
 </html>
