@@ -239,7 +239,7 @@ def index():
             x='UKT',
             y='LABEL',
             orientation='h',
-            title='7 Prodi dengan UKT Termahal dari PTN',
+            title='Prodi dengan UKT Termahal dari PTN',
             text='UKT',
             labels={'UKT': 'UKT (Rupiah)', 'LABEL': 'PTN - Jurusan'}
         )
