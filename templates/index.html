@@ -1,162 +1,545 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="Program IUP, International Undergraduate Program, Perguruan Tinggi Negeri, PTN, Pendidikan Tinggi, Kuliah Internasional, Beasiswa IUP, Jurusan IUP, Daya Tampung IUP, Biaya Kuliah, Universitas Negeri, Program Sarjana Internasional">
-    <meta name="description" content="Informasi lengkap tentang Program IUP (International Undergraduate Program) di Perguruan Tinggi Negeri di Indonesia, termasuk jurusan, daya tampung, dan biaya kuliah.">
-    <title>Dashboard Analisis Program IUP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="description" content="Dashboard analisis Program IUP di PTN Indonesia - informasi lengkap tentang jurusan, daya tampung, dan biaya kuliah">
+    <title>Dashboard Program IUP PTN Indonesia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5rem;
+            color: #2563eb;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .stat-card p {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .section {
+            background: #ffffff;
+            margin: 24px 0;
+            padding: 32px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background-color: #2563eb;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+        
+        .ptn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .ptn-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .ptn-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .ptn-card.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .ptn-card h4 {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .ptn-card p {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .interactive-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(16px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 48px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .charts-container {
+            display: none;
+            gap: 24px;
+        }
+        
+        .chart-box {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chart-box h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            background: #ffffff;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .province-list {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .province-list h4 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .province-list ol {
+            padding-left: 20px;
+        }
+        
+        .province-list li {
+            margin: 8px 0;
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .province-list li strong {
+            color: #1e293b;
+        }
+        
+        .selected-ptn-display {
+            text-align: center;
+            padding: 16px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            color: #1e40af;
+        }
+        
+        .instruction-text {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 24px;
+            font-style: italic;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        footer {
+            text-align: center;
+            color: #64748b;
+            margin-top: 48px;
+            padding: 24px;
+            border-top: 1px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { 
+                font-size: 1.875rem; 
+            }
+            .container { 
+                padding: 16px; 
+            }
+            .stats-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .ptn-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .section {
+                padding: 24px 20px;
+            }
+            .header {
+                padding: 24px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<h1>Dashboard Analisis Program IUP di PTN</h1>
-
-<!-- Geographic Statistics -->
-<div class="section">
-    <h2>Statistik Geografis</h2>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>{{ jumlah_ptn }}</h3>
-            <p>Total PTN</p>
+    <div class="container">
+        <div class="header">
+            <h1>Dashboard Program IUP</h1>
+            <p>Analisis Lengkap Program International Undergraduate di PTN Indonesia</p>
         </div>
-        <div class="stat-card">
-            <h3>{{ jumlah_provinsi }}</h3>
-            <p>Provinsi</p>
+
+        <!-- Key Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ stats.jumlah_ptn }}</h3>
+                <p>Total PTN</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.jumlah_provinsi }}</h3>
+                <p>Provinsi</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.jumlah_kota }}</h3>
+                <p>Kota</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.total_prodi }}</h3>
+                <p>Program Studi</p>
+            </div>
         </div>
-        <div class="stat-card">
-            <h3>{{ jumlah_kota }}</h3>
-            <p>Kota</p>
+
+        <!-- Top Provinces -->
+        <div class="section">
+            <h2>Sebaran Geografis</h2>
+            <div class="province-list">
+                <h4>5 Provinsi dengan PTN Terbanyak:</h4>
+                <ol>
+                    {% for provinsi, jumlah in stats.provinsi_terbanyak.items() %}
+                    <li><strong>{{ provinsi }}:</strong> {{ jumlah }} PTN</li>
+                    {% endfor %}
+                </ol>
+            </div>
         </div>
-    </div>
-    
-    <div class="province-list">
-        <h4>5 Provinsi dengan PTN Terbanyak:</h4>
-        <ol>
-            {% for provinsi, jumlah in provinsi_terbanyak.head(5).items() %}
-            <li><strong>{{ provinsi }}:</strong> {{ jumlah }} PTN</li>
-            {% endfor %}
-        </ol>
-    </div>
-</div>
 
-<!-- Map Visualization -->
-<div class="section">
-    <div class="chart-section">
-        {{ chart_map|safe }}
-    </div>
-</div>
-
-<!-- Province Distribution -->
-<div class="section">
-    <div class="chart-section">
-        {{ chart_provinsi|safe }}
-    </div>
-</div>
-
-<!-- Sunburst Chart -->
-<div class="section">
-    <div class="chart-section">
-        {{ chart_sunburst|safe }}
-    </div>
-</div>
-
-<!-- PTN Selection -->
-<div class="section">
-    <h2>Detail PTN</h2>
-    <p style="text-align:center; font-size: 14px; color: #666; margin-bottom: 20px;">
-        <em>Klik kartu PTN untuk melihat detail data</em>
-    </p>
-    <div class="ptn-grid">
-        {% for ptn, jml in jurusan_per_ptn.items() %}
-        <div class="ptn-card" data-ptn="{{ ptn }}" onclick="selectPTN('{{ ptn }}')">
-            <div class="click-hint">▶</div>
-            <h4 style="margin: 0 0 10px;">{{ ptn }}</h4>
-            <p>{{ jml }} jurusan</p>
+        <!-- Key Analytics Charts -->
+        <div class="section">
+            <h2>Analisis</h2>
+            {{ charts.popular|safe }}
         </div>
-        {% endfor %}
-    </div>
-</div>
 
-<!-- Interactive PTN Details -->
-<div class="section" id="interactive-section" style="display: none;">
-    <h2>Data PTN Terpilih</h2>
-    <div class="selected-ptn" id="selected-ptn-display">
-        Pilih PTN dari kartu di atas
-    </div>
-    
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p>Memuat data...</p>
-    </div>
-    
-    <div class="charts-container" id="charts-container">
-        <div class="chart-box">
-            <h3>Distribusi Daya Tampung per Prodi</h3>
-            <div id="pie-chart"></div>
+        <div class="section">
+            {{ charts.ukt_tinggi|safe }}
         </div>
-        
-        <div class="chart-box">
-            <h3>Distribusi UKT per Prodi</h3>
-            <div id="bar-chart"></div>
+
+        <div class="section">
+            {{ charts.kapasitas_besar|safe }}
         </div>
-        
-        <div class="detail-section" id="detail-table-container">
-            <h3>Detail Jurusan, Daya Tampung & UKT</h3>
-            <table id="detail-table">
-                <thead>
-                    <tr>
-                        <th>Jurusan</th>
-                        <th>Daya Tampung</th>
-                        <th>UKT (Rupiah)</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                </tbody>
-            </table>
+
+        <div class="section">
+            {{ charts.provinsi|safe }}
         </div>
+
+        <!-- PTN Selection -->
+        <div class="section">
+            <h2>Detail PTN</h2>
+            <div class="instruction-text">
+                Klik kartu PTN untuk melihat detail program studi
+            </div>
+            <div class="ptn-grid">
+                {% for ptn, jml in jurusan_per_ptn.items() %}
+                <div class="ptn-card" data-ptn="{{ ptn }}" onclick="selectPTN('{{ ptn }}')">
+                    <h4>{{ ptn }}</h4>
+                    <p>{{ jml }} program studi</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Interactive PTN Details -->
+        <div class="section interactive-section" id="interactive-section">
+            <h2>Detail PTN Terpilih</h2>
+            <div id="selected-ptn-display" class="selected-ptn-display">
+                Pilih PTN dari kartu di atas
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Memuat data...</p>
+            </div>
+            
+            <div class="charts-container" id="charts-container">
+                <div class="chart-box">
+                    <h3>Distribusi Daya Tampung per Program</h3>
+                    <div id="pie-chart" style="height: 400px;"></div>
+                </div>
+                
+                <div class="chart-box">
+                    <h3>Distribusi UKT per Program</h3>
+                    <div id="bar-chart" style="height: 400px;"></div>
+                </div>
+                
+                <div class="chart-box">
+                    <h3>Detail Program Studi</h3>
+                    <table id="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Program Studi</th>
+                                <th>Daya Tampung</th>
+                                <th>UKT</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Dashboard IUP PTN | Dibuat dengan dedikasi untuk pendidikan Indonesia</p>
+        </footer>
     </div>
-</div>
 
-<!-- Analysis Charts -->
-<div class="section">
-    <div class="chart-section">
-        {{ chart_ukt_termahal|safe }}
-    </div>
-</div>
+    <script>
+        let currentSelectedPTN = null;
 
-<div class="section">
-    <div class="chart-section">
-        {{ chart_daya_terbanyak|safe }}
-    </div>
-</div>
+        function selectPTN(ptnName) {
+            // Update UI
+            document.querySelectorAll('.ptn-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-ptn="${ptnName}"]`).classList.add('active');
+            document.getElementById('selected-ptn-display').textContent = `PTN Terpilih: ${ptnName}`;
+            
+            // Show sections
+            const interactiveSection = document.getElementById('interactive-section');
+            interactiveSection.style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('charts-container').style.display = 'none';
+            
+            currentSelectedPTN = ptnName;
+            
+            // Smooth scroll
+            interactiveSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Fetch data
+            fetch(`/api/charts/${encodeURIComponent(ptnName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderCharts(data);
+                        updateTable(data.table_data);
+                        showChartsContainer();
+                    } else {
+                        handleError(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    handleError('Gagal memuat data');
+                });
+        }
 
-<div class="section">
-    <div class="chart-section">
-        {{ chart_ukt_termurah|safe }}
-    </div>
-</div>
+        function renderCharts(data) {
+            // Pie chart
+            const pieData = JSON.parse(data.pie_chart);
+            Plotly.newPlot('pie-chart', pieData.data, {
+                ...pieData.layout,
+                autosize: true,
+                margin: { l: 50, r: 50, t: 50, b: 50 }
+            }, { responsive: true, displayModeBar: false });
 
-<div class="section">
-    <div class="chart-section">
-        {{ chart_dayamin|safe }}
-    </div>
-</div>
+            // Bar chart
+            const barData = JSON.parse(data.bar_chart);
+            Plotly.newPlot('bar-chart', barData.data, {
+                ...barData.layout,
+                autosize: true,
+                margin: { l: 150, r: 50, t: 50, b: 50 }
+            }, { responsive: true, displayModeBar: false });
+        }
 
-<div class="section">
-    <div class="chart-section">
-        {{ chart_popular|safe }}
-    </div>
-</div>
+        function updateTable(tableData) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            tableData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.JURUSAN}</td>
+                    <td>${row['DAYA TAMPUNG'] || 'N/A'}</td>
+                    <td>${row.UKT_RUPIAH}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
 
-<!-- Footer -->
-<footer>
-    <p>&copy; Dashboard IUP PTN | Vicky Ardiansyah</p>
-</footer>
+        function showChartsContainer() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('charts-container').style.display = 'block';
+            
+            // Resize charts
+            setTimeout(() => {
+                Plotly.Plots.resize('pie-chart');
+                Plotly.Plots.resize('bar-chart');
+            }, 100);
+        }
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+        function handleError(message) {
+            document.getElementById('loading').style.display = 'none';
+            alert('Terjadi kesalahan: ' + message);
+        }
 
+        // Responsive charts on window resize
+        window.addEventListener('resize', () => {
+            if (currentSelectedPTN) {
+                setTimeout(() => {
+                    Plotly.Plots.resize('pie-chart');
+                    Plotly.Plots.resize('bar-chart');
+                }, 100);
+            }
+        });
+    </script>
 </body>
 </html>
