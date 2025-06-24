@@ -40,30 +40,53 @@ def get_charts(ptn):
     try:
         ptn_data = df[df['PTN'] == ptn]
         
-        # Pie Chart for Daya Tampung
+        if ptn_data.empty:
+            return jsonify({'success': False, 'message': f'Data untuk {ptn} tidak ditemukan'})
+
+        # HITUNG RATA-RATA
+        avg_daya_tampung = ptn_data['DAYA TAMPUNG'].mean()
+        avg_ukt = ptn_data['UKT'].mean()
+
+        # FORMAT HASIL RATA-RATA
+        formatted_avg_daya_tampung = f"{int(avg_daya_tampung)}" if not pd.isna(avg_daya_tampung) else "N/A"
+        formatted_avg_ukt = format_rupiah(avg_ukt) if not pd.isna(avg_ukt) else "N/A"
+
+        # Pie Chart untuk Daya Tampung
         data_daya = ptn_data[['JURUSAN', 'DAYA TAMPUNG']].dropna()
         if not data_daya.empty:
             fig_daya = create_chart(data_daya, 'pie', f'Distribusi Daya Tampung di {ptn}', 
-                                  'DAYA TAMPUNG', 'JURUSAN', hole=0.3)
+                                    'DAYA TAMPUNG', 'JURUSAN', hole=0.3)
         else:
             fig_daya = px.pie(title=f'Tidak ada data daya tampung untuk {ptn}')
         
         # Bar Chart untuk UKT
-        data_ukt = ptn_data[['JURUSAN', 'UKT']].dropna().sort_values('UKT', ascending=False)
+        data_ukt = ptn_data[['JURUSAN', 'UKT']].dropna().sort_values('UKT', ascending=True) # diubah ascending agar bar chart lebih rapi
         if not data_ukt.empty:
             fig_ukt = create_chart(data_ukt, 'bar', f'UKT per Prodi di {ptn}',
-                                 'UKT', 'JURUSAN', orientation='h')
-            fig_ukt.update_traces(texttemplate='Rp %{x:,.0f}')
+                                   'UKT', 'JURUSAN', orientation='h')
+            
+            # Memperbaiki format label di bar agar konsisten menggunakan titik
+            fig_ukt.update_traces(texttemplate='Rp%{x:,.0f}'.replace(',', '.'))
+            
+            # Menambahkan format pada sumbu-x agar tidak disingkat
+            fig_ukt.update_layout(
+                xaxis_title="UKT",
+                xaxis_tickformat=',.0f',
+                separators='.,'
+            )
         else:
             fig_ukt = px.bar(title=f'Tidak ada data UKT untuk {ptn}')
         
-        filtered = ptn_data[['JURUSAN', 'DAYA TAMPUNG', 'UKT_RUPIAH']]
+        # Data untuk tabel, menggunakan UKT_RUPIAH yang sudah diformat
+        filtered_for_table = ptn_data[['JURUSAN', 'DAYA TAMPUNG', 'UKT_RUPIAH']].rename(columns={'UKT_RUPIAH': 'UKT'})
         
         return jsonify({
             'success': True,
             'pie_chart': json.dumps(fig_daya, cls=plotly.utils.PlotlyJSONEncoder),
             'bar_chart': json.dumps(fig_ukt, cls=plotly.utils.PlotlyJSONEncoder),
-            'table_data': filtered.to_dict(orient='records')
+            'table_data': filtered_for_table.to_dict(orient='records'),
+            'avg_daya_tampung': formatted_avg_daya_tampung,
+            'avg_ukt': formatted_avg_ukt
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -83,7 +106,7 @@ def index():
         'jumlah_provinsi': df['PROVINSI'].nunique(),
         'jumlah_kota': df['KOTA'].nunique(),
         'total_prodi': len(df),
-        'provinsi_terbanyak': df.groupby('PROVINSI')['PTN'].nunique().sort_values(ascending=False).head(5)
+        'provinsi_terbanyak': df.groupby('PROVINSI')['PTN'].nunique().sort_values(ascending=False).head(3) # Jumlah Provinsi dengan PTN Terbanyak
     }
     
     # Top Charts Only (Most Important)
@@ -95,14 +118,30 @@ def index():
     charts['popular'] = create_chart(jurusan_populer, 'bar', 'Program Studi Paling Populer',
                                    'JUMLAH_PTN', 'JURUSAN', orientation='h').to_html(full_html=False)
     
-    # 2. Highest UKT Programs
+     # 2. Highest UKT Programs
     if not df_clean.empty:
         ukt_termahal = df_clean.loc[df_clean.groupby('PTN')['UKT'].idxmax()][['PTN', 'JURUSAN', 'UKT']]
         ukt_termahal_top = ukt_termahal.sort_values('UKT', ascending=False).head(5)
         ukt_termahal_top['LABEL'] = ukt_termahal_top['PTN'] + " - " + ukt_termahal_top['JURUSAN']
         
-        charts['ukt_tinggi'] = create_chart(ukt_termahal_top[::-1], 'bar', 'Program dengan UKT Tertinggi',
-                                          'UKT', 'LABEL', orientation='h', text='UKT').to_html(full_html=False)
+        # 1. Buat objek grafik terlebih dahulu
+        fig_ukt_tinggi = create_chart(ukt_termahal_top[::-1], 'bar', 'Program dengan UKT Tertinggi',
+                                          'UKT', 'LABEL', orientation='h')
+
+        # 2. Terapkan format Rupiah pada teks bar dan hover
+        fig_ukt_tinggi.update_traces(
+            texttemplate='Rp%{x:,.0f}'.replace(',', '.'), 
+            textposition='outside'
+        )
+        
+         # 3. Ubah format sumbu x agar sesuai format Rupiah
+        fig_ukt_tinggi.update_layout(
+            xaxis_title="UKT (dalam Rupiah)",
+            xaxis_tickformat=',.0f',
+            separators='.,'
+        )
+
+        charts['ukt_tinggi'] = fig_ukt_tinggi.to_html(full_html=False)
     
     # 3. Largest Capacity Programs
     daya_terbanyak = df_clean.loc[df_clean.groupby('PTN')['DAYA TAMPUNG'].idxmax()][['PTN', 'JURUSAN', 'DAYA TAMPUNG']]

@@ -194,6 +194,7 @@
         .charts-container {
             display: none;
             gap: 24px;
+            flex-direction: column;
         }
         
         .chart-box {
@@ -292,6 +293,31 @@
             border-radius: 6px;
             border: 1px solid #e2e8f0;
         }
+
+        /* ========== STYLE BARU UNTUK STATISTIK RATA-RATA ========== */
+        .ptn-stats-summary {
+            display: none; /* Defaultnya disembunyikan */
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .ptn-stats-summary h6 {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .ptn-stats-summary p {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        /* ======================================================== */
         
         footer {
             text-align: center;
@@ -310,16 +336,10 @@
             .container { 
                 padding: 16px; 
             }
-            .stats-grid { 
+            .stats-grid, .ptn-grid, .ptn-stats-summary { 
                 grid-template-columns: 1fr; 
             }
-            .ptn-grid { 
-                grid-template-columns: 1fr; 
-            }
-            .section {
-                padding: 24px 20px;
-            }
-            .header {
+            .section, .header {
                 padding: 24px 20px;
             }
         }
@@ -332,7 +352,6 @@
             <p>Analisis Lengkap Program International Undergraduate di PTN Indonesia</p>
         </div>
 
-        <!-- Key Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>{{ stats.jumlah_ptn }}</h3>
@@ -352,11 +371,10 @@
             </div>
         </div>
 
-        <!-- Top Provinces -->
         <div class="section">
             <h2>Sebaran Geografis</h2>
             <div class="province-list">
-                <h4>5 Provinsi dengan PTN Terbanyak:</h4>
+                <h4>3 Provinsi dengan PTN Terbanyak:</h4>
                 <ol>
                     {% for provinsi, jumlah in stats.provinsi_terbanyak.items() %}
                     <li><strong>{{ provinsi }}:</strong> {{ jumlah }} PTN</li>
@@ -365,7 +383,6 @@
             </div>
         </div>
 
-        <!-- Key Analytics Charts -->
         <div class="section">
             <h2>Analisis</h2>
             {{ charts.popular|safe }}
@@ -381,9 +398,9 @@
 
         <div class="section">
             {{ charts.provinsi|safe }}
+        }
         </div>
 
-        <!-- PTN Selection -->
         <div class="section">
             <h2>Detail PTN</h2>
             <div class="instruction-text">
@@ -399,13 +416,22 @@
             </div>
         </div>
 
-        <!-- Interactive PTN Details -->
         <div class="section interactive-section" id="interactive-section">
             <h2>Detail PTN Terpilih</h2>
             <div id="selected-ptn-display" class="selected-ptn-display">
                 Pilih PTN dari kartu di atas
             </div>
-            
+
+            <div class="ptn-stats-summary" id="ptn-stats-summary">
+                <div class="stat-item">
+                    <h6>Rata-Rata Daya Tampung</h6>
+                    <p id="avg-daya-tampung">-</p>
+                </div>
+                <div class="stat-item">
+                    <h6>Rata-Rata UKT</h6>
+                    <p id="avg-ukt">-</p>
+                </div>
+            </div>
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p>Memuat data...</p>
@@ -439,7 +465,7 @@
         </div>
 
         <footer>
-            <p>&copy; 2024 Dashboard IUP PTN | Dibuat dengan dedikasi untuk pendidikan Indonesia</p>
+            <p>&copy; Dashboard IUP PTN</p>
         </footer>
     </div>
 
@@ -454,11 +480,12 @@
             document.querySelector(`[data-ptn="${ptnName}"]`).classList.add('active');
             document.getElementById('selected-ptn-display').textContent = `PTN Terpilih: ${ptnName}`;
             
-            // Show sections
+            // Show sections & loader, hide old charts & stats
             const interactiveSection = document.getElementById('interactive-section');
             interactiveSection.style.display = 'block';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('charts-container').style.display = 'none';
+            document.getElementById('ptn-stats-summary').style.display = 'none'; // Sembunyikan statistik lama
             
             currentSelectedPTN = ptnName;
             
@@ -470,6 +497,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // ========== PERBARUI BLOK STATISTIK RATA-RATA ==========
+                        document.getElementById('avg-daya-tampung').textContent = data.avg_daya_tampung || 'N/A';
+                        document.getElementById('avg-ukt').textContent = data.avg_ukt || 'N/A';
+                        document.getElementById('ptn-stats-summary').style.display = 'grid'; // Tampilkan statistik
+                        // ========================================================
+
                         renderCharts(data);
                         updateTable(data.table_data);
                         showChartsContainer();
@@ -497,7 +530,7 @@
             Plotly.newPlot('bar-chart', barData.data, {
                 ...barData.layout,
                 autosize: true,
-                margin: { l: 150, r: 50, t: 50, b: 50 }
+                margin: { l: 200, r: 50, t: 50, b: 50 } // Increased left margin
             }, { responsive: true, displayModeBar: false });
         }
 
@@ -509,7 +542,7 @@
                 tr.innerHTML = `
                     <td>${row.JURUSAN}</td>
                     <td>${row['DAYA TAMPUNG'] || 'N/A'}</td>
-                    <td>${row.UKT_RUPIAH}</td>
+                    <td>${row.UKT}</td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -517,26 +550,27 @@
 
         function showChartsContainer() {
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('charts-container').style.display = 'block';
+            document.getElementById('charts-container').style.display = 'flex'; // Diubah ke flex
             
             // Resize charts
             setTimeout(() => {
-                Plotly.Plots.resize('pie-chart');
-                Plotly.Plots.resize('bar-chart');
+                Plotly.Plots.resize(document.getElementById('pie-chart'));
+                Plotly.Plots.resize(document.getElementById('bar-chart'));
             }, 100);
         }
 
         function handleError(message) {
             document.getElementById('loading').style.display = 'none';
-            alert('Terjadi kesalahan: ' + message);
+            document.getElementById('ptn-stats-summary').style.display = 'none';
+            alert('Terjadi kesalahan: ' + (message || 'Tidak ada data'));
         }
 
         // Responsive charts on window resize
         window.addEventListener('resize', () => {
             if (currentSelectedPTN) {
                 setTimeout(() => {
-                    Plotly.Plots.resize('pie-chart');
-                    Plotly.Plots.resize('bar-chart');
+                    Plotly.Plots.resize(document.getElementById('pie-chart'));
+                    Plotly.Plots.resize(document.getElementById('bar-chart'));
                 }, 100);
             }
         });
