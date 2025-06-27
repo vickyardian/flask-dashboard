@@ -61,14 +61,23 @@ Data yang digunakan dalam proyek ini berasal dari file `MINI_TIM_B.csv`, yang be
 
 ## Struktur Proyek
 
-/
-|-- app.py                  # File utama aplikasi Flask
-|-- MINI_TIM_B.csv          # Dataset utama
-|-- requirements.txt        # Daftar dependensi Python
-|-- .render.yaml            # Konfigurasi deployment untuk Render
-|-- .gitignore              # File dan folder yang diabaikan oleh Git
-|-- templates/
-|   |-- index.html          # Template utama halaman web
-|-- static/
-|   |-- styles.css          # File styling CSS
-|   |-- script.js           # File JavaScript untuk interaktivitas
+````
+
+flask-dashboard/
+├── .gitignore
+├── .render.yaml
+├── app.py
+├── MINI\_TIM\_B.csv
+├── README.md
+├── requirements.txt
+├── robots.txt
+├── sitemap.xml
+├── static/
+│   ├── googled3d7408d119c4567.html
+│   ├── script.js
+│   └── styles.css
+└── templates/
+└── index.html
+
+```
+```
