@@ -112,13 +112,13 @@ def index():
     # Top Charts Only (Most Important)
     charts = {}
     
-    # 1. Most Popular Programs
+    # 1. Program studi populer
     jurusan_populer = df['JURUSAN'].value_counts().head(8).reset_index()
     jurusan_populer.columns = ['JURUSAN', 'JUMLAH_PTN']
     charts['popular'] = create_chart(jurusan_populer, 'bar', 'Program Studi Paling Populer',
                                    'JUMLAH_PTN', 'JURUSAN', orientation='h').to_html(full_html=False)
     
-     # 2. Highest UKT Programs
+     # 2. Program studi UKT tertinggi
     if not df_clean.empty:
         ukt_termahal = df_clean.loc[df_clean.groupby('PTN')['UKT'].idxmax()][['PTN', 'JURUSAN', 'UKT']]
         ukt_termahal_top = ukt_termahal.sort_values('UKT', ascending=False).head(5)
@@ -126,7 +126,7 @@ def index():
         
         # 1. Buat objek grafik terlebih dahulu
         fig_ukt_tinggi = create_chart(ukt_termahal_top[::-1], 'bar', 'Program dengan UKT Tertinggi',
-                                          'UKT', 'LABEL', orientation='h')
+                                  'UKT', 'LABEL', orientation='h', color='JURUSAN')
 
         # 2. Terapkan format Rupiah pada teks bar dan hover
         fig_ukt_tinggi.update_traces(
