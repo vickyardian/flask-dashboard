@@ -1,7 +1,6 @@
 let currentSelectedPTN = null;
 
 function selectPTN(ptnName) {
-  // Update UI
   document.querySelectorAll(".ptn-card").forEach((card) => {
     card.classList.remove("active");
   });
@@ -15,7 +14,7 @@ function selectPTN(ptnName) {
   interactiveSection.style.display = "block";
   document.getElementById("loading").style.display = "block";
   document.getElementById("charts-container").style.display = "none";
-  document.getElementById("ptn-stats-summary").style.display = "none"; // Sembunyikan statistik lama
+  document.getElementById("ptn-stats-summary").style.display = "none";
 
   currentSelectedPTN = ptnName;
 
@@ -69,7 +68,7 @@ function renderCharts(data) {
     {
       ...barData.layout,
       autosize: true,
-      margin: { l: 200, r: 50, t: 50, b: 50 }, // Increased left margin
+      margin: { l: 200, r: 50, t: 50, b: 50 }, // Margin kiri meningkat
     },
     { responsive: true, displayModeBar: false }
   );
