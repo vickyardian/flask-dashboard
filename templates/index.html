@@ -1,44 +1,66 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- Meta tags untuk konfigurasi dasar halaman -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Dashboard analisis Program IUP di PTN Indonesia - informasi lengkap tentang jurusan, daya tampung, dan biaya kuliah">
+    
+    <!-- Judul halaman yang muncul di tab browser -->
     <title>Dashboard Program IUP PTN Indonesia</title>
+    
+    <!-- Import font Inter dari Google Fonts untuk tampilan yang modern -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link ke file CSS kustom -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+    <!-- Script Plotly untuk rendering grafik interaktif -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
+    <!-- Container utama yang membungkus seluruh konten -->
     <div class="container">
+        
+        <!-- HEADER SECTION -->
+        <!-- Bagian header dengan judul utama dan deskripsi -->
         <div class="header">
             <h1>Dashboard Program IUP</h1>
-            <p>Analisis Lengkap Program International Undergraduate di PTN Indonesia</p>
+            <p>Analisis Program International Undergraduate di PTN Indonesia</p>
         </div>
 
+        <!-- BAGIAN STATISTIK -->
+        <!-- Grid untuk menampilkan statistik utama dalam bentuk kartu -->
         <div class="stats-grid">
+            <!-- Kartu statistik total PTN -->
             <div class="stat-card">
                 <h3>{{ stats.jumlah_ptn }}</h3>
                 <p>Total PTN</p>
             </div>
+            <!-- Kartu statistik jumlah provinsi -->
             <div class="stat-card">
                 <h3>{{ stats.jumlah_provinsi }}</h3>
                 <p>Provinsi</p>
             </div>
+            <!-- Kartu statistik jumlah kota -->
             <div class="stat-card">
                 <h3>{{ stats.jumlah_kota }}</h3>
                 <p>Kota</p>
             </div>
+            <!-- Kartu statistik total program studi -->
             <div class="stat-card">
                 <h3>{{ stats.total_prodi }}</h3>
                 <p>Program Studi</p>
             </div>
         </div>
 
+        <!-- BAGIAN DISTRIBUSI GEOGRAFIS -->
+        <!-- Bagian yang menampilkan sebaran geografis PTN -->
         <div class="section">
             <h2>Sebaran Geografis</h2>
             <div class="province-list">
                 <h4>3 Provinsi dengan PTN Terbanyak:</h4>
+                <!-- Loop untuk menampilkan provinsi dengan PTN terbanyak -->
                 <ol>
                     {% for provinsi, jumlah in stats.provinsi_terbanyak.items() %}
                     <li><strong>{{ provinsi }}:</strong> {{ jumlah }} PTN</li>
@@ -47,30 +69,43 @@
             </div>
         </div>
 
+        <!-- BAGIAN GRAFIK ANALISIS -->
+        <!-- Bagian yang menampilkan berbagai grafik analisis -->
+        
+        <!-- Grafik program studi paling populer -->
         <div class="section">
             <h2>Analisis</h2>
-            {{ charts.popular|safe }}
+            {{ charts.popular|safe }}  <!-- |safe untuk mengizinkan HTML dari backend -->
         </div>
 
+        <!-- Grafik program dengan UKT tertinggi -->
         <div class="section">
             {{ charts.ukt_tinggi|safe }}
         </div>
 
+        <!-- Grafik program dengan daya tampung terbesar -->
         <div class="section">
             {{ charts.kapasitas_besar|safe }}
         </div>
 
+        <!-- Grafik distribusi PTN per provinsi -->
         <div class="section">
             {{ charts.provinsi|safe }}
         </div>
 
+        <!-- BAGIAN SELEKSI PTN -->
+        <!-- Bagian untuk memilih PTN spesifik dan melihat detailnya -->
         <div class="section">
             <h2>Detail PTN</h2>
+            <!-- Instruksi untuk user -->
             <div class="instruction-text">
                 Klik kartu PTN untuk melihat detail program studi
             </div>
+            
+            <!-- Grid kartu PTN yang dapat diklik -->
             <div class="ptn-grid">
                 {% for ptn, jml in jurusan_per_ptn.items() %}
+                <!-- Setiap kartu PTN dengan event onclick -->
                 <div class="ptn-card" data-ptn="{{ ptn }}" onclick="selectPTN('{{ ptn }}')">
                     <h4>{{ ptn }}</h4>
                     <p>{{ jml }} program studi</p>
@@ -79,12 +114,17 @@
             </div>
         </div>
 
+        <!-- BAGIAN INTERAKTIF -->
+        <!-- Bagian yang muncul ketika user memilih PTN tertentu -->
         <div class="section interactive-section" id="interactive-section">
             <h2>Detail PTN Terpilih</h2>
+            
+            <!-- Display nama PTN yang dipilih -->
             <div id="selected-ptn-display" class="selected-ptn-display">
                 Pilih PTN dari kartu di atas
             </div>
 
+            <!-- Statistik rata-rata untuk PTN terpilih -->
             <div class="ptn-stats-summary" id="ptn-stats-summary">
                 <div class="stat-item">
                     <h6>Rata-Rata Daya Tampung</h6>
@@ -95,22 +135,28 @@
                     <p id="avg-ukt">-</p>
                 </div>
             </div>
+            
+            <!-- Loading indikator saat data sedang dimuat -->
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p>Memuat data...</p>
             </div>
             
+            <!-- Container untuk grafik dan tabel detail PTN -->
             <div class="charts-container" id="charts-container">
+                <!-- Box untuk pie chart distribusi daya tampung -->
                 <div class="chart-box">
                     <h3>Distribusi Daya Tampung per Program</h3>
                     <div id="pie-chart" style="height: 400px;"></div>
                 </div>
                 
+                <!-- Box untuk bar chart distribusi UKT -->
                 <div class="chart-box">
                     <h3>Distribusi UKT per Program</h3>
                     <div id="bar-chart" style="height: 400px;"></div>
                 </div>
                 
+                <!-- Box untuk tabel detail program studi -->
                 <div class="chart-box">
                     <h3>Detail Program Studi</h3>
                     <table id="detail-table">
@@ -127,11 +173,13 @@
             </div>
         </div>
 
+        <!-- FOOTER -->
         <footer>
             <p>&copy; Dashboard IUP PTN</p>
         </footer>
     </div>
 
+    <!-- Link ke file JavaScript -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

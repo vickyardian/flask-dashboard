@@ -1,334 +1,384 @@
+/* ===== RESET CSS DAN PENGATURAN DASAR ===== */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0;           /* Menghilangkan margin default */
+    padding: 0;          /* Menghilangkan padding default */
+    box-sizing: border-box; /* Membuat perhitungan ukuran lebih konsisten */
 }
 
+/* Pengaturan dasar untuk seluruh body halaman */
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8fafc;
-    min-height: 100vh;
-    color: #1e293b;
-    line-height: 1.6;
+    font-family: 'Inter', sans-serif;  /* Font yang digunakan */
+    background-color: #f8fafc;         /* Warna latar belakang abu-abu terang */
+    min-height: 100vh;                 /* Tinggi minimum 100% viewport */
+    color: #1e293b;                    /* Warna teks utama (abu-abu gelap) */
+    line-height: 1.6;                  /* Jarak antar baris */
 }
 
+/* Container utama untuk membatasi lebar konten */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px;
+    max-width: 1200px;  /* Lebar maksimum container */
+    margin: 0 auto;     /* Memusatkan container */
+    padding: 24px;      /* Padding di dalam container */
 }
 
+/* ===== STYLING HEADER UTAMA ===== */
 .header {
-    background: #ffffff;
-    padding: 32px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 32px;
-    border-left: 4px solid #2563eb;
+    background: #ffffff;                    /* Latar belakang putih */
+    padding: 32px;                         /* Padding dalam header */
+    border-radius: 8px;                    /* Sudut melengkung */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Bayangan halus */
+    margin-bottom: 32px;                   /* Jarak bawah */
+    border-left: 4px solid #2563eb;       /* Garis biru di kiri sebagai aksen */
 }
 
+/* Judul utama dalam header */
 .header h1 {
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 8px;
+    font-size: 2.25rem;  /* Ukuran font besar */
+    font-weight: 700;    /* Ketebalan font (bold) */
+    color: #1e293b;      /* Warna teks gelap */
+    margin-bottom: 8px;  /* Jarak bawah */
 }
 
+/* Subjudul dalam header */
 .header p {
-    font-size: 1.125rem;
-    color: #64748b;
-    font-weight: 400;
+    font-size: 1.125rem; /* Ukuran font sedang */
+    color: #64748b;      /* Warna abu-abu medium */
+    font-weight: 400;    /* Ketebalan font normal */
 }
 
+/* ===== GRID UNTUK KARTU STATISTIK ===== */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
+    display: grid;                                      /* Menggunakan CSS Grid */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Kolom responsif */
+    gap: 24px;           /* Jarak antar kartu */
+    margin-bottom: 32px; /* Jarak bawah grid */
 }
 
+/* Styling untuk setiap kartu statistik */
 .stat-card {
-    background: #ffffff;
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    background: #ffffff;                    /* Latar belakang putih */
+    padding: 24px;                         /* Padding dalam kartu */
+    border-radius: 8px;                    /* Sudut melengkung */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Bayangan halus */
+    border: 1px solid #e2e8f0;            /* Border abu-abu tipis */
+    transition: box-shadow 0.2s ease, transform 0.2s ease; /* Animasi smooth */
 }
 
+/* Efek hover pada kartu statistik */
 .stat-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Bayangan lebih dalam */
+    transform: translateY(-2px);                 /* Mengangkat kartu sedikit */
 }
 
+/* Angka statistik dalam kartu */
 .stat-card h3 {
-    font-size: 2.5rem;
-    color: #2563eb;
-    margin-bottom: 8px;
-    font-weight: 700;
+    font-size: 2.5rem;   /* Ukuran font sangat besar */
+    color: #2563eb;      /* Warna biru */
+    margin-bottom: 8px;  /* Jarak bawah */
+    font-weight: 700;    /* Ketebalan font bold */
 }
 
+/* Label statistik dalam kartu */
 .stat-card p {
-    color: #64748b;
-    font-weight: 500;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
+    color: #64748b;                 /* Warna abu-abu medium */
+    font-weight: 500;               /* Ketebalan font medium */
+    font-size: 0.875rem;           /* Ukuran font kecil */
+    text-transform: uppercase;      /* Huruf kapital semua */
+    letter-spacing: 0.025em;        /* Jarak antar huruf */
 }
 
+/* ===== STYLING SECTION UMUM ===== */
 .section {
-    background: #ffffff;
-    margin: 24px 0;
-    padding: 32px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
+    background: #ffffff;                    /* Latar belakang putih */
+    margin: 24px 0;                        /* Margin atas dan bawah */
+    padding: 32px;                         /* Padding dalam section */
+    border-radius: 8px;                    /* Sudut melengkung */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Bayangan halus */
+    border: 1px solid #e2e8f0;            /* Border abu-abu tipis */
 }
 
+/* Judul section */
 .section h2 {
-    color: #1e293b;
-    margin-bottom: 24px;
-    font-size: 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
+    color: #1e293b;      /* Warna teks gelap */
+    margin-bottom: 24px; /* Jarak bawah */
+    font-size: 1.5rem;   /* Ukuran font sedang-besar */
+    font-weight: 600;    /* Ketebalan font semi-bold */
+    display: flex;       /* Flexbox untuk alignment */
+    align-items: center; /* Vertikal center */
 }
 
+/* Garis aksen sebelum judul section */
 .section h2::before {
-    content: '';
-    width: 4px;
-    height: 24px;
-    background-color: #2563eb;
-    margin-right: 12px;
-    border-radius: 2px;
+    content: '';                 /* Konten kosong untuk pseudo-element */
+    width: 4px;                  /* Lebar garis */
+    height: 24px;                /* Tinggi garis */
+    background-color: #2563eb;   /* Warna biru */
+    margin-right: 12px;          /* Jarak kanan */
+    border-radius: 2px;          /* Sudut melengkung kecil */
 }
 
+/* ===== GRID UNTUK KARTU PTN ===== */
 .ptn-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    margin-top: 24px;
+    display: grid;                                      /* Menggunakan CSS Grid */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Kolom responsif */
+    gap: 16px;           /* Jarak antar kartu */
+    margin-top: 24px;    /* Jarak atas */
 }
 
+/* Styling untuk setiap kartu PTN */
 .ptn-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
+    background: #ffffff;     /* Latar belakang putih */
+    padding: 20px;          /* Padding dalam kartu */
+    border-radius: 6px;     /* Sudut melengkung */
+    border: 1px solid #e2e8f0; /* Border abu-abu tipis */
+    cursor: pointer;        /* Cursor pointer saat hover */
+    transition: all 0.2s ease; /* Animasi smooth untuk semua properti */
+    position: relative;     /* Posisi relatif untuk pseudo-elements */
 }
 
+/* Efek hover pada kartu PTN */
 .ptn-card:hover {
-    border-color: #2563eb;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-    transform: translateY(-1px);
+    border-color: #2563eb;                      /* Border berubah biru */
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); /* Bayangan biru */
+    transform: translateY(-1px);                 /* Mengangkat kartu sedikit */
 }
 
+/* Style untuk kartu PTN yang aktif/terpilih */
 .ptn-card.active {
-    border-color: #2563eb;
-    background: #eff6ff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #2563eb;                      /* Border biru */
+    background: #eff6ff;                        /* Latar belakang biru sangat muda */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Ring biru di sekitar kartu */
 }
 
+/* Nama PTN dalam kartu */
 .ptn-card h4 {
-    margin-bottom: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1e293b;
+    margin-bottom: 8px;  /* Jarak bawah */
+    font-size: 1.1rem;   /* Ukuran font sedikit lebih besar */
+    font-weight: 600;    /* Ketebalan font semi-bold */
+    color: #1e293b;      /* Warna teks gelap */
 }
 
+/* Deskripsi PTN dalam kartu */
 .ptn-card p {
-    color: #64748b;
-    font-size: 0.875rem;
+    color: #64748b;      /* Warna abu-abu medium */
+    font-size: 0.875rem; /* Ukuran font kecil */
 }
 
+/* ===== SECTION INTERAKTIF ===== */
 .interactive-section {
-    display: none;
-    animation: fadeIn 0.3s ease-in;
+    display: none;                /* Defaultnya disembunyikan */
+    animation: fadeIn 0.3s ease-in; /* Animasi muncul */
 }
 
+/* Animasi fade in untuk section interaktif */
 @keyframes fadeIn {
     from { 
-        opacity: 0; 
-        transform: translateY(16px); 
+        opacity: 0;                    /* Mulai transparan */
+        transform: translateY(16px);   /* Mulai dari bawah */
     }
     to { 
-        opacity: 1; 
-        transform: translateY(0); 
+        opacity: 1;                    /* Akhir opaque */
+        transform: translateY(0);      /* Akhir di posisi normal */
     }
 }
 
+/* ===== LOADING INDICATOR ===== */
 .loading {
-    text-align: center;
-    padding: 48px;
-    display: none;
+    text-align: center; /* Teks rata tengah */
+    padding: 48px;      /* Padding besar */
+    display: none;      /* Defaultnya disembunyikan */
 }
 
+/* Spinner loading */
 .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #e2e8f0;
-    border-top: 3px solid #2563eb;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 16px;
+    width: 40px;         /* Lebar spinner */
+    height: 40px;        /* Tinggi spinner */
+    border: 3px solid #e2e8f0;        /* Border abu-abu */
+    border-top: 3px solid #2563eb;    /* Border atas biru */
+    border-radius: 50%;               /* Bentuk lingkaran */
+    animation: spin 1s linear infinite; /* Animasi berputar */
+    margin: 0 auto 16px;              /* Margin untuk centering */
 }
 
+/* Animasi rotasi untuk spinner */
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }    /* Mulai dari 0 derajat */
+    100% { transform: rotate(360deg); } /* Berputar penuh 360 derajat */
 }
 
+/* ===== CONTAINER CHARTS ===== */
 .charts-container {
-    display: none;
-    gap: 24px;
-    flex-direction: column;
+    display: none;        /* Defaultnya disembunyikan */
+    gap: 24px;           /* Jarak antar chart */
+    flex-direction: column; /* Susunan vertikal */
 }
 
+/* Box untuk membungkus setiap chart */
 .chart-box {
-    background: #f8fafc;
-    padding: 24px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    background: #f8fafc;    /* Latar belakang abu-abu sangat muda */
+    padding: 24px;         /* Padding dalam box */
+    border-radius: 6px;    /* Sudut melengkung */
+    border: 1px solid #e2e8f0; /* Border abu-abu tipis */
 }
 
+/* Judul chart */
 .chart-box h3 {
-    margin-bottom: 16px;
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 1.125rem;
+    margin-bottom: 16px; /* Jarak bawah */
+    color: #1e293b;      /* Warna teks gelap */
+    font-weight: 600;    /* Ketebalan font semi-bold */
+    font-size: 1.125rem; /* Ukuran font sedang */
 }
 
+/* ===== STYLING TABEL ===== */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-    background: #ffffff;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
+    width: 100%;            /* Lebar penuh */
+    border-collapse: collapse; /* Menggabungkan border */
+    margin-top: 16px;       /* Jarak atas */
+    background: #ffffff;    /* Latar belakang putih */
+    border-radius: 6px;     /* Sudut melengkung */
+    overflow: hidden;       /* Menyembunyikan overflow untuk border-radius */
+    border: 1px solid #e2e8f0; /* Border abu-abu tipis */
 }
 
+/* Styling untuk header dan cell tabel */
 th, td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px;           /* Padding dalam cell */
+    text-align: left;             /* Alignment teks ke kiri */
+    border-bottom: 1px solid #e2e8f0; /* Border bawah */
 }
 
+/* Styling khusus untuk header tabel */
 th {
-    background: #f1f5f9;
-    color: #475569;
-    font-weight: 600;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
+    background: #f1f5f9;     /* Latar belakang abu-abu muda */
+    color: #475569;          /* Warna teks abu-abu gelap */
+    font-weight: 600;        /* Ketebalan font semi-bold */
+    font-size: 0.875rem;    /* Ukuran font kecil */
+    text-transform: uppercase; /* Huruf kapital semua */
+    letter-spacing: 0.025em; /* Jarak antar huruf */
 }
 
+/* Efek hover pada baris tabel */
 tbody tr:hover {
-    background: #f8fafc;
+    background: #f8fafc; /* Latar belakang sedikit berubah saat hover */
 }
 
+/* Menghilangkan border pada baris terakhir */
 tbody tr:last-child td {
     border-bottom: none;
 }
 
+/* ===== DAFTAR PROVINSI ===== */
 .province-list {
-    background: #f8fafc;
-    padding: 24px;
-    border-radius: 6px;
-    margin: 20px 0;
-    border: 1px solid #e2e8f0;
+    background: #f8fafc;    /* Latar belakang abu-abu sangat muda */
+    padding: 24px;         /* Padding dalam container */
+    border-radius: 6px;    /* Sudut melengkung */
+    margin: 20px 0;        /* Margin atas dan bawah */
+    border: 1px solid #e2e8f0; /* Border abu-abu tipis */
 }
 
+/* Judul daftar provinsi */
 .province-list h4 {
-    color: #1e293b;
-    margin-bottom: 16px;
-    font-weight: 600;
+    color: #1e293b;      /* Warna teks gelap */
+    margin-bottom: 16px; /* Jarak bawah */
+    font-weight: 600;    /* Ketebalan font semi-bold */
 }
 
+/* Ordered list dalam daftar provinsi */
 .province-list ol {
-    padding-left: 20px;
+    padding-left: 20px; /* Padding kiri untuk indentasi */
 }
 
+/* Item dalam daftar provinsi */
 .province-list li {
-    margin: 8px 0;
-    font-weight: 500;
-    color: #475569;
+    margin: 8px 0;    /* Margin atas dan bawah */
+    font-weight: 500; /* Ketebalan font medium */
+    color: #475569;   /* Warna abu-abu gelap */
 }
 
+/* Teks tebal dalam item provinsi */
 .province-list li strong {
-    color: #1e293b;
+    color: #1e293b; /* Warna teks lebih gelap */
 }
 
+/* ===== DISPLAY PTN TERPILIH ===== */
 .selected-ptn-display {
-    text-align: center;
-    padding: 16px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    border-radius: 6px;
-    margin-bottom: 24px;
-    font-weight: 600;
-    color: #1e40af;
+    text-align: center;      /* Teks rata tengah */
+    padding: 16px;          /* Padding dalam container */
+    background: #eff6ff;    /* Latar belakang biru sangat muda */
+    border: 1px solid #bfdbfe; /* Border biru muda */
+    border-radius: 6px;     /* Sudut melengkung */
+    margin-bottom: 24px;    /* Jarak bawah */
+    font-weight: 600;       /* Ketebalan font semi-bold */
+    color: #1e40af;         /* Warna teks biru gelap */
 }
 
+/* ===== TEKS INSTRUKSI ===== */
 .instruction-text {
-    text-align: center;
-    color: #64748b;
-    margin-bottom: 24px;
-    font-style: italic;
-    padding: 16px;
-    background: #f8fafc;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    text-align: center;      /* Teks rata tengah */
+    color: #64748b;         /* Warna abu-abu medium */
+    margin-bottom: 24px;    /* Jarak bawah */
+    font-style: italic;     /* Style italic */
+    padding: 16px;          /* Padding dalam container */
+    background: #f8fafc;    /* Latar belakang abu-abu sangat muda */
+    border-radius: 6px;     /* Sudut melengkung */
+    border: 1px solid #e2e8f0; /* Border abu-abu tipis */
 }
 
-/* ========== STYLE BARU UNTUK STATISTIK RATA-RATA ========== */
+/* ===== STATISTIK RATA-RATA PTN ===== */
 .ptn-stats-summary {
-    display: none; /* Defaultnya disembunyikan */
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    text-align: center;
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid #e2e8f0;
+    display: none;           /* Defaultnya disembunyikan */
+    grid-template-columns: 1fr 1fr; /* Dua kolom sama lebar */
+    gap: 24px;              /* Jarak antar kolom */
+    text-align: center;     /* Teks rata tengah */
+    margin-bottom: 24px;    /* Jarak bawah */
+    padding-bottom: 24px;   /* Padding bawah */
+    border-bottom: 1px solid #e2e8f0; /* Border bawah sebagai pemisah */
 }
 
+/* Label untuk statistik rata-rata */
 .ptn-stats-summary h6 {
-    color: #64748b;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 8px;
+    color: #64748b;      /* Warna abu-abu medium */
+    font-size: 0.875rem; /* Ukuran font kecil */
+    font-weight: 500;    /* Ketebalan font medium */
+    margin-bottom: 8px;  /* Jarak bawah */
 }
 
+/* Nilai statistik rata-rata */
 .ptn-stats-summary p {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #1e293b;
+    font-size: 1.75rem;  /* Ukuran font besar */
+    font-weight: 600;    /* Ketebalan font semi-bold */
+    color: #1e293b;      /* Warna teks gelap */
 }
-/* ======================================================== */
 
+/* ===== FOOTER ===== */
 footer {
-    text-align: center;
-    color: #64748b;
-    margin-top: 48px;
-    padding: 24px;
-    border-top: 1px solid #e2e8f0;
-    background: #ffffff;
-    border-radius: 6px;
+    text-align: center;      /* Teks rata tengah */
+    color: #64748b;         /* Warna abu-abu medium */
+    margin-top: 48px;       /* Jarak atas besar */
+    padding: 24px;          /* Padding dalam footer */
+    border-top: 1px solid #e2e8f0; /* Border atas sebagai pemisah */
+    background: #ffffff;    /* Latar belakang putih */
+    border-radius: 6px;     /* Sudut melengkung */
 }
 
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
+    /* Menyesuaikan ukuran font judul untuk layar kecil */
     .header h1 { 
         font-size: 1.875rem; 
     }
+    
+    /* Mengurangi padding container untuk layar kecil */
     .container { 
         padding: 16px; 
     }
+    
+    /* Mengubah grid menjadi satu kolom untuk layar kecil */
     .stats-grid, .ptn-grid, .ptn-stats-summary { 
         grid-template-columns: 1fr; 
     }
+    
+    /* Mengurangi padding section untuk layar kecil */
     .section, .header {
         padding: 24px 20px;
     }
